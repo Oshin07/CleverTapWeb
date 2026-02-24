@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile Push</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Segment Web SDK (added, UI unchanged) -->
+  <script>
+  !function(){
+    var analytics=window.analytics=window.analytics||[];
+    if(!analytics.initialize)
+      if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");
+      else{
+        analytics.invoked=true;
+        analytics.methods=["track","page","identify","group","alias","ready","reset","getAnonymousId"];
+        analytics.factory=function(t){
+          return function(){
+            var e=Array.prototype.slice.call(arguments);
+            e.unshift(t);
+            analytics.push(e);
+            return analytics;
+          };
+        };
+        for(var t=0;t<analytics.methods.length;t++){
+          var e=analytics.methods[t];
+          analytics[e]=analytics.factory(e);
+        }
+        analytics.load=function(t){
+          var e=document.createElement("script");
+          e.type="text/javascript";
+          e.async=true;
+          e.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";
+          var n=document.getElementsByTagName("script")[0];
+          n.parentNode.insertBefore(e,n);
+        };
+        analytics.SNIPPET_VERSION="4.15.3";
+        analytics.load("rQxgn9f4AlCelsyFOpCoGSILYeuO3jSJ");
+        analytics.page();
+      }
+  }();
+  </script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+<header class="p-6 border-b border-white/10">
+  <a href="index.html" class="text-indigo-400">← Back</a>
+  <h1 class="text-2xl font-bold mt-2">Profile Push</h1>
+</header>
+
+<main class="max-w-3xl mx-auto p-8 space-y-4">
+  <input id="identity" placeholder="Identity" class="w-full p-3 bg-slate-900 border border-slate-700" />
+  <input id="email" placeholder="Email" class="w-full p-3 bg-slate-900 border border-slate-700" />
+  <input id="phone" placeholder="Phone" class="w-full p-3 bg-slate-900 border border-slate-700" />
+
+  <h3 class="font-semibold mt-6">Custom User Properties</h3>
+  <div id="props"></div>
+
+  <button type="button" onclick="addProp()" class="bg-slate-700 px-4 py-2 rounded">
+    + Add Property
+  </button>
+
+  <button type="button" onclick="pushProfile()" class="bg-indigo-600 px-6 py-3 rounded font-semibold">
+    Push Profile
+  </button>
+</main>
+
+<script src="CT.js"></script>
+</body>
+</html>
