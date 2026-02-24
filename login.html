@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Login – CleverTap Web Sample</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="ct-config.js"></script>
+
+  <style>
+    :root{--bg:#f7f5f2;--surface:#fff;--border:#e5ddd5;--accent:#e8622a;--accent2:#c44d1e;--text:#1a1410;--muted:#8a7d72;--success:#3d8f5f;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:"Syne",sans-serif;min-height:100vh;}
+    .ct-header{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border);}
+    .ct-topbar{padding:13px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0ebe4;}
+    .back-link{font-family:"DM Mono",monospace;font-size:0.76rem;color:var(--muted);text-decoration:none;transition:color 0.15s;}
+    .back-link:hover{color:var(--accent);}
+    .sdk-live{font-family:"DM Mono",monospace;font-size:0.66rem;color:var(--success);display:flex;align-items:center;gap:5px;}
+    .sdk-live::before{content:"";width:6px;height:6px;background:var(--success);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .ct-pagehead{padding:16px 48px 22px;}
+    .ct-pagehead .ph-icon{font-size:1.5rem;display:block;margin-bottom:6px;}
+    .ct-pagehead h1{font-size:1.45rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);margin-bottom:4px;}
+    .ct-pagehead p{font-family:"DM Mono",monospace;font-size:0.73rem;color:var(--muted);}
+    .page-body{max-width:1060px;margin:0 auto;padding:32px 40px;display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start;}
+    @media(max-width:820px){.page-body{grid-template-columns:1fr;}.ct-topbar,.ct-pagehead{padding-left:20px;padding-right:20px;}}
+    .form-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .log-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:sticky;top:22px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .log-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#fdfaf7;}
+    .log-header span:first-child{font-size:0.8rem;font-weight:700;color:var(--text);}
+    .log-clear{font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--muted);cursor:pointer;background:none;border:none;transition:color 0.15s;}
+    .log-clear:hover{color:var(--text);}
+    #log-panel{max-height:460px;overflow-y:auto;font-family:"DM Mono",monospace;}
+    #log-panel:empty::after{content:"Waiting for events...";display:block;padding:24px 16px;color:var(--muted);font-size:0.74rem;text-align:center;}
+    .form-group{margin-bottom:14px;}
+    .form-group label{display:block;font-family:"DM Mono",monospace;font-size:0.69rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;}
+    .req{color:var(--accent2);}
+    .ct-input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:"DM Mono",monospace;font-size:0.82rem;outline:none;transition:border-color 0.15s,background 0.15s;}
+    .ct-input:focus{border-color:var(--accent);background:#fff;}
+    .ct-input::placeholder{color:#c0b5a8;}
+    .ct-btn{padding:10px 20px;border-radius:8px;border:none;font-family:"Syne",sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+    .ct-btn-primary{background:var(--accent);color:#fff;}
+    .ct-btn-primary:hover{background:var(--accent2);}
+    .ct-btn-secondary{background:#f3ede6;color:#6b5c4e;border:1px solid var(--border);}
+    .ct-btn-secondary:hover{background:#ede5db;color:var(--text);}
+    .divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+    .props-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:22px;}
+    .props-header span{font-family:"DM Mono",monospace;font-size:0.69rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+    .actions{display:flex;gap:10px;margin-top:20px;}
+    .hint-box{margin-top:18px;padding:13px 15px;background:#fdf6f0;border-radius:9px;border:1px solid #e8d5c4;font-family:"DM Mono",monospace;font-size:0.73rem;color:var(--muted);line-height:1.65;}
+    .hint-box .hl{color:var(--accent);}
+    @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  </style>
+</head>
+<body>
+  <div class="ct-header">
+    <div class="ct-topbar">
+      <a href="index.html" class="back-link">← Back to Sample</a>
+      <span class="sdk-live">SDK LIVE</span>
+    </div>
+    <div class="ct-pagehead">
+      <span class="ph-icon">👤</span>
+      <h1>User Login</h1>
+      <p>clevertap.onUserLogin.push({ Site: { ... } })</p>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="form-card">
+      <div class="form-group">
+        <label>Identity <span class="req">*</span></label>
+        <input id="identity" type="text" placeholder="user@example.com or numeric ID" class="ct-input"/>
+      </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input id="name" type="text" placeholder="Full name" class="ct-input"/>
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="email@domain.com" class="ct-input"/>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input id="phone" type="tel" placeholder="+91XXXXXXXXXX" class="ct-input"/>
+        </div>
+      </div>
+      <hr class="divider"/>
+      <div class="props-header">
+        <span>Custom Properties</span>
+        <button type="button" class="ct-btn ct-btn-secondary" onclick="addProp()" style="padding:5px 13px;font-size:0.78rem;">+ Add</button>
+      </div>
+      <div id="props"></div>
+      <div class="actions">
+        <button type="button" class="ct-btn ct-btn-primary" onclick="loginUser()">Fire onUserLogin</button>
+        <button type="button" class="ct-btn ct-btn-secondary" onclick="['identity','name','email','phone'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.getElementById('props').innerHTML='';">Clear</button>
+      </div>
+      <div class="hint-box"><span class="hl">onUserLogin</span> is used when a user <strong>signs in or creates an account</strong>. It merges anonymous profile data with the identified user. Call once per session login event.</div>
+    </div>
+
+    <div class="log-card">
+      <div class="log-header">
+        <span>Event Log</span>
+        <button class="log-clear" onclick="document.getElementById('log-panel').innerHTML=''">Clear</button>
+      </div>
+      <div id="log-panel"></div>
+    </div>
+  </div>
+
+  <script>
+    window.clevertap = window.clevertap || { event:[], profile:[], onUserLogin:[], notifications:[], privacy:[] };
+    function showToast(msg,type='success'){document.getElementById('ct-toast')?.remove();const t=document.createElement('div');t.id='ct-toast';t.style.cssText=`position:fixed;bottom:22px;right:22px;padding:11px 16px;border-radius:9px;font-family:"DM Mono",monospace;font-size:0.78rem;z-index:9999;display:flex;align-items:center;gap:8px;animation:slideUp 0.25s ease;box-shadow:0 4px 18px rgba(0,0,0,0.1);${type==='success'?'background:#f0faf4;border:1px solid #a8d5bb;color:#2a6040;':'background:#fef2f0;border:1px solid #f0b8a8;color:#8b2e18;'}`;t.innerHTML=`<span>${type==='success'?'✓':'✗'}</span> ${msg}`;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
+    function logToPanel(label,data){const panel=document.getElementById('log-panel');if(!panel)return;const e=document.createElement('div');e.style.cssText='padding:10px 14px;border-bottom:1px solid #f0ebe3;animation:fadeIn 0.25s ease;';e.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#e8622a;font-weight:600;font-size:0.76rem;">${label}</span><span style="color:#c0b5a8;font-size:0.68rem;">${new Date().toLocaleTimeString()}</span></div><pre style="color:#7a6a5a;font-size:0.72rem;white-space:pre-wrap;word-break:break-all;">${JSON.stringify(data,null,2)}</pre>`;panel.insertBefore(e,panel.firstChild);}
+    function addProp(){const c=document.getElementById('props');if(!c)return;const row=document.createElement('div');row.className='prop-row';row.style.cssText='display:grid;grid-template-columns:1fr 1fr 110px 34px;gap:8px;margin-bottom:8px;animation:fadeIn 0.2s ease;';row.innerHTML='<input type="text" placeholder="Key" class="ct-input"/><input type="text" placeholder="Value" class="ct-input"/><select class="ct-input"><option value="string">String</option><option value="number">Number</option><option value="boolean">Boolean</option></select><button type="button" onclick="this.closest(\'.prop-row\').remove()" style="background:#f3ede6;border:1px solid #e5ddd5;color:#8a7d72;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>';c.appendChild(row);}
+    function collectProps(){const p={};document.querySelectorAll('#props .prop-row').forEach(row=>{const k=row.children[0].value.trim();let v=row.children[1].value.trim();const t=row.children[2].value;if(!k)return;if(t==='number')v=parseFloat(v)||0;if(t==='boolean')v=v==='true'||v==='1';p[k]=v;});return p;}
+    function loginUser(){const identity=document.getElementById('identity')?.value.trim();if(!identity){showToast('Identity is required','error');return;}const site={Identity:identity,Name:document.getElementById('name')?.value.trim()||undefined,Email:document.getElementById('email')?.value.trim()||undefined,Phone:document.getElementById('phone')?.value.trim()||undefined,...collectProps()};Object.keys(site).forEach(k=>site[k]===undefined&&delete site[k]);const payload={Site:site};clevertap.onUserLogin.push(payload);logToPanel('onUserLogin.push()',payload);showToast('User Login fired successfully');}
+  </script>
+</body>
+</html>

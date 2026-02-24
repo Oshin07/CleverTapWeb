@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Inbox – CleverTap Web Sample</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="ct-config.js"></script>
+
+  <style>
+    :root{--bg:#f7f5f2;--surface:#fff;--border:#e5ddd5;--accent:#e8622a;--accent2:#c44d1e;--text:#1a1410;--muted:#8a7d72;--success:#3d8f5f;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:"Syne",sans-serif;min-height:100vh;}
+    .ct-header{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border);}
+    .ct-topbar{padding:13px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0ebe4;}
+    .back-link{font-family:"DM Mono",monospace;font-size:0.76rem;color:var(--muted);text-decoration:none;transition:color 0.15s;}
+    .back-link:hover{color:var(--accent);}
+    .sdk-live{font-family:"DM Mono",monospace;font-size:0.66rem;color:var(--success);display:flex;align-items:center;gap:5px;}
+    .sdk-live::before{content:"";width:6px;height:6px;background:var(--success);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .ct-pagehead{padding:16px 48px 22px;}
+    .ct-pagehead .ph-icon{font-size:1.5rem;display:block;margin-bottom:6px;}
+    .ct-pagehead h1{font-size:1.45rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);margin-bottom:4px;}
+    .ct-pagehead p{font-family:"DM Mono",monospace;font-size:0.73rem;color:var(--muted);}
+    .page-body{max-width:1160px;margin:0 auto;padding:32px 40px;}
+    .ct-btn{padding:10px 20px;border-radius:8px;border:none;font-family:"Syne",sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+    .ct-btn-primary{background:var(--accent);color:#fff;}
+    .ct-btn-primary:hover{background:var(--accent2);}
+    .ct-btn-secondary{background:#f3ede6;color:#6b5c4e;border:1px solid var(--border);}
+    .ct-btn-secondary:hover{background:#ede5db;color:var(--text);}
+    .inbox-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;}
+    .inbox-panel{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .panel-head{padding:12px 16px;border-bottom:1px solid var(--border);background:#fdfaf7;display:flex;justify-content:space-between;align-items:center;}
+    .panel-head-title{font-size:0.88rem;font-weight:700;}
+    .unread-badge{background:var(--accent);color:#fff;font-family:"DM Mono",monospace;font-size:0.67rem;padding:2px 9px;border-radius:10px;font-weight:700;}
+    .panel-toolbar{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:8px;}
+    .msg-card{background:#fff;border-bottom:1px solid var(--border);padding:12px 14px;cursor:pointer;transition:background 0.15s;position:relative;}
+    .msg-card:hover{background:#fdfaf7;}
+    .msg-card.active{background:#fdf6f0;border-left:3px solid var(--accent);}
+    .msg-card.unread::after{content:"";position:absolute;top:16px;left:14px;width:7px;height:7px;background:var(--accent);border-radius:50%;}
+    .msg-card.unread .msg-title{padding-left:15px;}
+    .msg-title{font-size:0.85rem;font-weight:700;margin-bottom:3px;color:var(--text);}
+    .msg-excerpt{font-family:"DM Mono",monospace;font-size:0.72rem;color:var(--muted);line-height:1.45;margin-bottom:6px;}
+    .msg-footer{display:flex;justify-content:space-between;align-items:center;}
+    .msg-tag{font-family:"DM Mono",monospace;font-size:0.63rem;padding:2px 7px;border-radius:8px;}
+    .msg-time{font-family:"DM Mono",monospace;font-size:0.66rem;color:#c0b5a8;}
+    .sdk-methods{background:#fff;border:1px solid var(--border);border-radius:12px;margin-top:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .sdk-methods-head{padding:11px 14px;border-bottom:1px solid var(--border);background:#fdfaf7;font-family:"DM Mono",monospace;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+    .sdk-methods-body{padding:10px;}
+    .sdk-methods-body button{display:block;width:100%;margin-bottom:6px;text-align:left;}
+    .detail-panel{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;min-height:440px;display:flex;flex-direction:column;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .detail-head{padding:12px 18px;border-bottom:1px solid var(--border);background:#fdfaf7;display:flex;justify-content:space-between;align-items:center;}
+    .detail-head span{font-family:"DM Mono",monospace;font-size:0.74rem;color:var(--muted);}
+    .detail-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#c0b5a8;font-family:"DM Mono",monospace;font-size:0.78rem;}
+    .detail-empty .empty-icon{font-size:2.5rem;margin-bottom:10px;}
+    .detail-body{padding:26px;flex:1;}
+    .detail-body h2{font-size:1.25rem;font-weight:800;margin-bottom:10px;color:var(--text);}
+    .detail-body .detail-text{color:#5a4a3a;line-height:1.7;font-size:0.88rem;margin-bottom:18px;}
+    .detail-actions{display:flex;gap:10px;margin-bottom:18px;}
+    .detail-meta{font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--muted);padding-top:14px;border-top:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:5px 16px;}
+    .log-panel-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .log-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#fdfaf7;}
+    .log-header span:first-child{font-size:0.8rem;font-weight:700;color:var(--text);}
+    .log-clear{font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--muted);cursor:pointer;background:none;border:none;}
+    .log-clear:hover{color:var(--text);}
+    #log-panel{max-height:180px;overflow-y:auto;font-family:"DM Mono",monospace;}
+    #log-panel:empty::after{content:"Waiting for events...";display:block;padding:20px 16px;color:var(--muted);font-size:0.73rem;text-align:center;}
+    @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="ct-header">
+    <div class="ct-topbar">
+      <a href="index.html" class="back-link">← Back to Sample</a>
+      <span class="sdk-live">SDK LIVE</span>
+    </div>
+    <div class="ct-pagehead">
+      <span class="ph-icon">📥</span>
+      <h1>Web Inbox</h1>
+      <p>Render & interact with CleverTap App Inbox messages</p>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="inbox-layout">
+      <!-- Left sidebar -->
+      <div>
+        <div class="inbox-panel">
+          <div class="panel-head">
+            <span class="panel-head-title">Inbox Messages</span>
+            <span class="unread-badge" id="unread-count">3 unread</span>
+          </div>
+          <div class="panel-toolbar">
+            <button type="button" class="ct-btn ct-btn-secondary" onclick="markAllRead()" style="flex:1;font-size:0.74rem;padding:7px 10px;">Mark All Read</button>
+            <button type="button" class="ct-btn ct-btn-secondary" onclick="refreshInbox()" style="flex:1;font-size:0.74rem;padding:7px 10px;">↺ Refresh</button>
+          </div>
+          <div id="inbox-list"></div>
+        </div>
+        <div class="sdk-methods">
+          <div class="sdk-methods-head">SDK Methods</div>
+          <div class="sdk-methods-body">
+            <button type="button" class="ct-btn ct-btn-secondary" onclick="callCount()" style="font-size:0.78rem;padding:7px 12px;">getInboxMessageCount()</button>
+            <button type="button" class="ct-btn ct-btn-secondary" onclick="callUnreadCount()" style="font-size:0.78rem;padding:7px 12px;">getInboxMessageUnreadCount()</button>
+            <button type="button" class="ct-btn ct-btn-secondary" onclick="callGetAll()" style="font-size:0.78rem;padding:7px 12px;">getAllInboxMessages()</button>
+            <button type="button" class="ct-btn ct-btn-secondary" onclick="callGetUnread()" style="font-size:0.78rem;padding:7px 12px;margin-bottom:0;">getUnreadInboxMessages()</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right detail -->
+      <div>
+        <div class="detail-panel">
+          <div class="detail-head">
+            <span>Message Detail</span>
+            <span id="detail-status">No message selected</span>
+          </div>
+          <div class="detail-empty" id="detail-empty">
+            <span class="empty-icon">📭</span>
+            Select a message to view details
+          </div>
+          <div class="detail-body" id="detail-body" style="display:none;"></div>
+        </div>
+
+        <div class="log-panel-wrap">
+          <div class="log-header">
+            <span>SDK Call Log</span>
+            <button class="log-clear" onclick="document.getElementById('log-panel').innerHTML=''">Clear</button>
+          </div>
+          <div id="log-panel"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.clevertap = window.clevertap || { event:[], profile:[], onUserLogin:[], notifications:[], privacy:[] };
+    function showToast(msg,type='success'){document.getElementById('ct-toast')?.remove();const t=document.createElement('div');t.id='ct-toast';t.style.cssText=`position:fixed;bottom:22px;right:22px;padding:11px 16px;border-radius:9px;font-family:"DM Mono",monospace;font-size:0.78rem;z-index:9999;display:flex;align-items:center;gap:8px;animation:slideUp 0.25s ease;box-shadow:0 4px 18px rgba(0,0,0,0.1);${type==='success'?'background:#f0faf4;border:1px solid #a8d5bb;color:#2a6040;':'background:#fef2f0;border:1px solid #f0b8a8;color:#8b2e18;'}`;t.innerHTML=`<span>${type==='success'?'✓':'✗'}</span> ${msg}`;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
+    function logToPanel(label,data){const panel=document.getElementById('log-panel');if(!panel)return;const e=document.createElement('div');e.style.cssText='padding:9px 14px;border-bottom:1px solid #f0ebe3;animation:fadeIn 0.25s ease;';e.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#e8622a;font-weight:600;font-size:0.74rem;">${label}</span><span style="color:#c0b5a8;font-size:0.67rem;">${new Date().toLocaleTimeString()}</span></div><pre style="color:#7a6a5a;font-size:0.7rem;white-space:pre-wrap;word-break:break-all;">${JSON.stringify(data,null,2)}</pre>`;panel.insertBefore(e,panel.firstChild);}
+
+    const demoMessages = [
+      {id:'m1',campaignId:'CMP_1234',unread:true,title:'🎉 Welcome to CleverTap!',body:'Thanks for integrating the CleverTap Web SDK. Your first event has been recorded successfully.',cta:'View Dashboard',ctaUrl:'https://dashboard.clevertap.com',tag:'onboarding',date:'2 min ago',color:'#e8622a'},
+      {id:'m2',campaignId:'CMP_1235',unread:true,title:'🛍️ Special Offer Just for You',body:'Get 20% off your next purchase. Use code CLEVER20 at checkout. Offer valid till end of month.',cta:'Claim Offer',ctaUrl:'#',tag:'promo',date:'1 hour ago',color:'#c47d1a'},
+      {id:'m3',campaignId:'CMP_1236',unread:true,title:'🔔 Feature Update Available',body:'Native Display campaigns are now live on your account. Try sending your first native display unit today.',cta:'Learn More',ctaUrl:'#',tag:'product',date:'3 hours ago',color:'#7a6a5a'},
+      {id:'m4',campaignId:'CMP_1230',unread:false,title:'📊 Your Weekly Summary',body:'Last week: 142 events tracked, 3 campaigns sent, 89% delivery rate. Great engagement!',cta:'View Report',ctaUrl:'#',tag:'report',date:'Yesterday',color:'#3d8f5f'},
+      {id:'m5',campaignId:'CMP_1229',unread:false,title:'⚙️ SDK Configuration Reminder',body:'Make sure to set your region correctly (in1, eu1, sg1, us1) in your account initialization.',cta:'View Docs',ctaUrl:'https://developer.clevertap.com',tag:'technical',date:'2 days ago',color:'#8a7d72'},
+    ];
+    let messages = [...demoMessages];
+    let activeId = null;
+
+    function renderInbox(){
+      const list=document.getElementById('inbox-list');
+      list.innerHTML='';
+      messages.forEach(msg=>{
+        const el=document.createElement('div');
+        el.className='msg-card'+(msg.unread?' unread':'')+(msg.id===activeId?' active':'');
+        el.onclick=()=>showDetail(msg.id);
+        el.innerHTML=`<div class="msg-title">${msg.title}</div><div class="msg-excerpt">${msg.body.slice(0,70)}${msg.body.length>70?'...':''}</div><div class="msg-footer"><span class="msg-tag" style="background:${msg.color}18;color:${msg.color};border:1px solid ${msg.color}30;">${msg.tag}</span><span class="msg-time">${msg.date}</span></div>`;
+        list.appendChild(el);
+      });
+      document.getElementById('unread-count').textContent=`${messages.filter(m=>m.unread).length} unread`;
+    }
+
+    function showDetail(id){
+      const msg=messages.find(m=>m.id===id);if(!msg)return;
+      msg.unread=false; activeId=id; renderInbox();
+      document.getElementById('detail-empty').style.display='none';
+      document.getElementById('detail-status').textContent='Viewing: '+msg.campaignId;
+      const body=document.getElementById('detail-body');
+      body.style.display='block';
+      body.innerHTML=`<h2>${msg.title}</h2><p class="detail-text">${msg.body}</p><div class="detail-actions"><button type="button" class="ct-btn ct-btn-primary" onclick="ctaClic('${msg.id}','${msg.ctaUrl}','${msg.cta}')">${msg.cta}</button><button type="button" class="ct-btn ct-btn-secondary" onclick="delMsg('${msg.id}')">Delete</button></div><div class="detail-meta"><span>Campaign</span><span>${msg.campaignId}</span><span>Tag</span><span>${msg.tag}</span><span>Date</span><span>${msg.date}</span></div>`;
+      logToPanel('App Inbox: Message Viewed',{msgId:id,campaignId:msg.campaignId});
+    }
+
+    function ctaClic(id,url,label){const msg=messages.find(m=>m.id===id);clevertap.event.push('App Inbox CTA Clicked',{msgId:id,campaignId:msg?.campaignId});logToPanel('App Inbox: CTA Clicked',{msgId:id,label});showToast(`CTA "${label}" clicked`);if(url!=='#')window.open(url,'_blank');}
+    function delMsg(id){messages=messages.filter(m=>m.id!==id);activeId=null;renderInbox();document.getElementById('detail-empty').style.display='flex';document.getElementById('detail-body').style.display='none';document.getElementById('detail-status').textContent='No message selected';logToPanel('App Inbox: Deleted',{msgId:id});showToast('Message deleted');}
+    function markAllRead(){messages.forEach(m=>m.unread=false);renderInbox();logToPanel('App Inbox: All Read',{});showToast('All messages marked as read');}
+    function refreshInbox(){messages=[...demoMessages];activeId=null;renderInbox();document.getElementById('detail-empty').style.display='flex';document.getElementById('detail-body').style.display='none';document.getElementById('detail-status').textContent='No message selected';logToPanel('App Inbox: Refreshed',{count:messages.length});showToast('Inbox refreshed');}
+    function callCount(){logToPanel('getInboxMessageCount()',{count:messages.length});showToast(`Total: ${messages.length} messages`);}
+    function callUnreadCount(){const n=messages.filter(m=>m.unread).length;logToPanel('getInboxMessageUnreadCount()',{count:n});showToast(`Unread: ${n}`);}
+    function callGetAll(){logToPanel('getAllInboxMessages()',messages.map(m=>({id:m.id,title:m.title,unread:m.unread})));showToast(`Returned ${messages.length} messages`);}
+    function callGetUnread(){const u=messages.filter(m=>m.unread);logToPanel('getUnreadInboxMessages()',u.map(m=>({id:m.id,title:m.title})));showToast(`${u.length} unread returned`);}
+
+    renderInbox();
+  </script>
+</body>
+</html>

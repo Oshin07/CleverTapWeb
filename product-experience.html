@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Experience – CleverTap Web Sample</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="ct-config.js"></script>
+
+  <style>
+    :root{--bg:#f7f5f2;--surface:#fff;--border:#e5ddd5;--accent:#e8622a;--accent2:#c44d1e;--text:#1a1410;--muted:#8a7d72;--success:#3d8f5f;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:"Syne",sans-serif;min-height:100vh;}
+    .ct-header{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border);}
+    .ct-topbar{padding:13px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0ebe4;}
+    .back-link{font-family:"DM Mono",monospace;font-size:0.76rem;color:var(--muted);text-decoration:none;transition:color 0.15s;}
+    .back-link:hover{color:var(--accent);}
+    .sdk-live{font-family:"DM Mono",monospace;font-size:0.66rem;color:var(--success);display:flex;align-items:center;gap:5px;}
+    .sdk-live::before{content:"";width:6px;height:6px;background:var(--success);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .ct-pagehead{padding:16px 48px 22px;}
+    .ph-icon{font-size:1.5rem;display:block;margin-bottom:6px;}
+    .ct-pagehead h1{font-size:1.45rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);margin-bottom:4px;}
+    .ct-pagehead p{font-family:"DM Mono",monospace;font-size:0.73rem;color:var(--muted);}
+    .page-body{max-width:1160px;margin:0 auto;padding:32px 40px;display:grid;grid-template-columns:280px 1fr;gap:20px;}
+    .ct-btn{padding:9px 18px;border-radius:8px;border:none;font-family:"Syne",sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+    .ct-btn-primary{background:var(--accent);color:#fff;}
+    .ct-btn-primary:hover{background:var(--accent2);}
+    .ct-btn-secondary{background:#f3ede6;color:#6b5c4e;border:1px solid var(--border);}
+    .ct-btn-secondary:hover{background:#ede5db;color:var(--text);}
+    .side-panel{display:flex;flex-direction:column;gap:14px;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .card-head{padding:11px 14px;border-bottom:1px solid var(--border);background:#fdfaf7;font-size:0.82rem;font-weight:700;}
+    .card-body{padding:12px;}
+    .card-body .ct-btn{display:block;width:100%;text-align:left;margin-bottom:7px;font-size:0.8rem;}
+    .card-body .ct-btn:last-child{margin-bottom:0;}
+    .log-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .log-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#fdfaf7;}
+    .log-head span:first-child{font-size:0.8rem;font-weight:700;color:var(--text);}
+    .log-clear{font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--muted);cursor:pointer;background:none;border:none;}
+    .log-clear:hover{color:var(--text);}
+    #log-panel{max-height:220px;overflow-y:auto;font-family:"DM Mono",monospace;}
+    #log-panel:empty::after{content:"Waiting for events...";display:block;padding:20px;color:var(--muted);font-size:0.73rem;text-align:center;}
+    /* Mock app */
+    .mock-app{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .mock-titlebar{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;background:#fdfaf7;}
+    .mock-dot{width:9px;height:9px;border-radius:50%;}
+    .mock-title{font-family:"DM Mono",monospace;font-size:0.72rem;color:var(--muted);margin-left:6px;}
+    .mock-content{padding:22px;position:relative;min-height:400px;}
+    .wt-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-bottom:18px;overflow:hidden;display:none;}
+    .wt-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width 0.4s ease;}
+    .mock-nav{display:flex;gap:7px;margin-bottom:18px;}
+    .mock-nav-btn{padding:6px 13px;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:#fdfaf7;transition:all 0.15s;}
+    .mock-nav-btn:hover{color:var(--text);border-color:#d4ccc2;}
+    .mock-nav-btn.active{background:#fdf0e6;border-color:var(--accent);color:var(--accent);}
+    .mock-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .mock-card{background:#fdfaf7;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all 0.15s;}
+    .mock-card:hover{border-color:#d4ccc2;}
+    .mock-card.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,98,42,0.12);}
+    .mc-icon{font-size:1.5rem;margin-bottom:7px;}
+    .mc-title{font-size:0.84rem;font-weight:700;margin-bottom:2px;}
+    .mc-sub{font-family:"DM Mono",monospace;font-size:0.68rem;color:var(--muted);}
+    /* Tooltip */
+    .pe-tip{position:absolute;background:#fff;border:1.5px solid var(--accent);border-radius:10px;padding:13px 15px;max-width:230px;z-index:50;box-shadow:0 6px 24px rgba(232,98,42,0.14);animation:tipIn 0.22s ease;}
+    @keyframes tipIn{from{opacity:0;transform:scale(0.94) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .pe-tip::before{content:"";position:absolute;top:-6px;left:16px;width:10px;height:10px;background:#fff;border-left:1.5px solid var(--accent);border-top:1.5px solid var(--accent);transform:rotate(45deg);}
+    .tip-title{font-size:0.81rem;font-weight:700;color:var(--accent);margin-bottom:5px;}
+    .tip-body{font-family:"DM Mono",monospace;font-size:0.71rem;color:#5a4a3a;line-height:1.5;margin-bottom:10px;}
+    .tip-footer{display:flex;align-items:center;justify-content:space-between;}
+    .tip-step{font-family:"DM Mono",monospace;font-size:0.65rem;color:#c0b5a8;}
+    .tip-btns{display:flex;gap:6px;}
+    .tip-next{background:var(--accent);color:#fff;border:none;padding:5px 11px;border-radius:6px;font-family:"Syne",sans-serif;font-size:0.71rem;font-weight:700;cursor:pointer;transition:background 0.15s;}
+    .tip-next:hover{background:var(--accent2);}
+    .tip-skip{background:#f3ede6;color:var(--muted);border:none;padding:5px 10px;border-radius:6px;font-family:"Syne",sans-serif;font-size:0.71rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+    .tip-skip:hover{color:var(--text);}
+    @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="ct-header">
+    <div class="ct-topbar">
+      <a href="index.html" class="back-link">← Back to Sample</a>
+      <span class="sdk-live">SDK LIVE</span>
+    </div>
+    <div class="ct-pagehead">
+      <span class="ph-icon">🚀</span>
+      <h1>Product Experience</h1>
+      <p>Walkthroughs, tooltips & guided flows via CleverTap PE builder</p>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="side-panel">
+      <div class="card">
+        <div class="card-head">Experience Types</div>
+        <div class="card-body">
+          <button type="button" class="ct-btn ct-btn-primary" onclick="startWalkthrough()">▶ Start Walkthrough (5 steps)</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="singleTip()">💬 Show Single Tooltip</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="showBanner()">📢 Show In-App Banner</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="showModal()">🪟 Show Modal Popup</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="stopAll()">✕ Stop All</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">SDK Methods</div>
+        <div class="card-body">
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="getVars()">getVariables()</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="fetchVars()">fetchVariables()</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="resetVars()">resetVariables()</button>
+        </div>
+      </div>
+      <div class="log-card">
+        <div class="log-head"><span>PE Event Log</span><button class="log-clear" onclick="document.getElementById('log-panel').innerHTML=''">Clear</button></div>
+        <div id="log-panel"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mock-app">
+        <div class="mock-titlebar">
+          <div class="mock-dot" style="background:#f0b8a8;"></div>
+          <div class="mock-dot" style="background:#f5d5a0;"></div>
+          <div class="mock-dot" style="background:#a8d5bb;"></div>
+          <span class="mock-title">MyApp — Dashboard (Mock UI)</span>
+        </div>
+        <div class="mock-content" id="mock-content">
+          <div class="wt-bar-wrap" id="wt-wrap"><div class="wt-bar-fill" id="wt-fill" style="width:0%"></div></div>
+          <div class="mock-nav">
+            <div class="mock-nav-btn active">🏠 Home</div>
+            <div class="mock-nav-btn" id="nav-analytics">📊 Analytics</div>
+            <div class="mock-nav-btn">🎯 Campaigns</div>
+            <div class="mock-nav-btn">⚙️ Settings</div>
+          </div>
+          <div class="mock-cards">
+            <div class="mock-card" id="mc-events"><div class="mc-icon">⚡</div><div class="mc-title">Events Tracker</div><div class="mc-sub">142 events today</div></div>
+            <div class="mock-card" id="mc-users"><div class="mc-icon">👥</div><div class="mc-title">Active Users</div><div class="mc-sub">1,284 online</div></div>
+            <div class="mock-card" id="mc-campaigns"><div class="mc-icon">🎯</div><div class="mc-title">Campaigns</div><div class="mc-sub">8 live · 3 scheduled</div></div>
+            <div class="mock-card" id="mc-revenue"><div class="mc-icon">💰</div><div class="mc-title">Revenue</div><div class="mc-sub">₹4,28,500 this week</div></div>
+          </div>
+          <div id="tip-overlay"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.clevertap=window.clevertap||{event:[],profile:[],onUserLogin:[],notifications:[],privacy:[]};
+    function showToast(msg,type='success'){document.getElementById('ct-toast')?.remove();const t=document.createElement('div');t.id='ct-toast';t.style.cssText=`position:fixed;bottom:22px;right:22px;padding:11px 16px;border-radius:9px;font-family:"DM Mono",monospace;font-size:0.78rem;z-index:9999;display:flex;align-items:center;gap:8px;animation:slideUp 0.25s ease;box-shadow:0 4px 18px rgba(0,0,0,0.1);${type==='success'?'background:#f0faf4;border:1px solid #a8d5bb;color:#2a6040;':'background:#fef2f0;border:1px solid #f0b8a8;color:#8b2e18;'}`;t.innerHTML=`<span>${type==='success'?'✓':'✗'}</span> ${msg}`;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
+    function logToPanel(label,data){const p=document.getElementById('log-panel');if(!p)return;const e=document.createElement('div');e.style.cssText='padding:9px 14px;border-bottom:1px solid #f0ebe3;animation:fadeIn 0.25s ease;';e.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#e8622a;font-weight:600;font-size:0.74rem;">${label}</span><span style="color:#c0b5a8;font-size:0.67rem;">${new Date().toLocaleTimeString()}</span></div><pre style="color:#7a6a5a;font-size:0.7rem;white-space:pre-wrap;word-break:break-all;">${JSON.stringify(data,null,2)}</pre>`;p.insertBefore(e,p.firstChild);}
+
+    const steps=[
+      {target:'mc-events',title:'Events Tracker',body:'Track every user interaction in real-time via clevertap.event.push().',pos:{top:'148px',left:'16px'}},
+      {target:'mc-users',title:'Active Users',body:'CleverTap ingests user data from onUserLogin calls automatically.',pos:{top:'148px',right:'16px',left:'auto'}},
+      {target:'nav-analytics',title:'Analytics Tab',body:'Dive into funnels, cohorts and event analytics built from your stream.',pos:{top:'58px',left:'120px'}},
+      {target:'mc-campaigns',title:'Campaigns',body:'Build automated journeys triggered by user events and profile properties.',pos:{bottom:'50px',left:'16px',top:'auto'}},
+      {target:'mc-revenue',title:'Revenue Insights',body:'CleverTap tracks charged events to give full revenue attribution.',pos:{bottom:'50px',right:'16px',left:'auto',top:'auto'}},
+    ];
+    let step=0;
+
+    function startWalkthrough(){step=0;document.getElementById('wt-wrap').style.display='block';showStep(0);clevertap.event.push('PE Walkthrough Started',{steps:steps.length});logToPanel('PE: Walkthrough Started',{steps:steps.length});}
+
+    function showStep(i){
+      if(i>=steps.length){finishWT();return;}
+      step=i;
+      document.getElementById('wt-fill').style.width=(i/steps.length*100)+'%';
+      document.querySelectorAll('.mock-card,.mock-nav-btn').forEach(e=>e.classList.remove('hl'));
+      document.getElementById(steps[i].target)?.classList.add('hl');
+      const ov=document.getElementById('tip-overlay');ov.innerHTML='';
+      const tip=document.createElement('div');tip.className='pe-tip';
+      Object.assign(tip.style,steps[i].pos);
+      tip.innerHTML=`<div class="tip-title">✦ ${steps[i].title}</div><div class="tip-body">${steps[i].body}</div><div class="tip-footer"><span class="tip-step">Step ${i+1} / ${steps.length}</span><div class="tip-btns"><button class="tip-skip" onclick="stopAll()">Skip</button><button class="tip-next" onclick="showStep(${i+1})">${i+1<steps.length?'Next →':'Finish ✓'}</button></div></div>`;
+      ov.appendChild(tip);
+      clevertap.event.push('PE Step Viewed',{step:i+1,target:steps[i].target});
+      logToPanel(`PE: Step ${i+1} Viewed`,{target:steps[i].target,title:steps[i].title});
+    }
+
+    function finishWT(){stopAll();document.getElementById('wt-fill').style.width='100%';setTimeout(()=>document.getElementById('wt-wrap').style.display='none',500);clevertap.event.push('PE Walkthrough Completed',{});logToPanel('PE: Walkthrough Completed',{});showToast('Walkthrough completed! 🎉');}
+
+    function stopAll(){document.querySelectorAll('.mock-card,.mock-nav-btn').forEach(e=>e.classList.remove('hl'));document.getElementById('tip-overlay').innerHTML='';document.getElementById('wt-wrap').style.display='none';document.getElementById('pe-banner')?.remove();document.getElementById('pe-modal')?.remove();}
+
+    function singleTip(){stopAll();document.getElementById('mc-users').classList.add('hl');document.getElementById('tip-overlay').innerHTML=`<div class="pe-tip" style="top:148px;left:50%;transform:translateX(-50%);"><div class="tip-title">💡 Did You Know?</div><div class="tip-body">Combine event data with profile attributes for hyper-personalized campaigns.</div><div class="tip-footer"><span></span><button class="tip-next" onclick="stopAll()">Got it ✓</button></div></div>`;clevertap.event.push('PE Tooltip Shown',{id:'tip_users'});logToPanel('PE: Tooltip Shown',{id:'tip_users'});}
+
+    function showBanner(){stopAll();const b=document.createElement('div');b.id='pe-banner';b.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5ddd5;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;z-index:999;box-shadow:0 -4px 20px rgba(0,0,0,0.07);animation:slideUp 0.3s ease;';b.innerHTML=`<div style="display:flex;align-items:center;gap:14px;"><span style="font-size:1.4rem;">🎯</span><div><div style="font-weight:700;font-size:0.88rem;color:#1a1410;margin-bottom:2px;">New Campaign Feature Available</div><div style="font-family:'DM Mono',monospace;font-size:0.73rem;color:#8a7d72;">Try our new AI-powered segmentation builder</div></div></div><div style="display:flex;gap:8px;"><button class="ct-btn ct-btn-primary" onclick="bannerCta()" style="font-size:0.8rem;padding:7px 16px;">Try Now</button><button class="ct-btn ct-btn-secondary" onclick="document.getElementById('pe-banner').remove();logToPanel('PE: Banner Dismissed',{})" style="font-size:0.8rem;padding:7px 12px;">✕</button></div>`;document.body.appendChild(b);clevertap.event.push('PE Banner Shown',{});logToPanel('PE: In-App Banner Shown',{cid:'CMP_PE_BNR'});}
+    function bannerCta(){clevertap.event.push('PE Banner CTA Clicked',{});logToPanel('PE: Banner CTA Clicked',{});showToast('Banner CTA fired!');document.getElementById('pe-banner')?.remove();}
+
+    function showModal(){stopAll();const w=document.createElement('div');w.id='pe-modal';w.style.cssText='position:fixed;inset:0;background:rgba(26,20,16,0.38);display:flex;align-items:center;justify-content:center;z-index:999;';w.innerHTML=`<div style="background:#fff;border:1px solid #e5ddd5;border-radius:16px;padding:36px;max-width:380px;width:90%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.1);"><div style="font-size:2.8rem;margin-bottom:14px;">🚀</div><h3 style="font-size:1.25rem;font-weight:800;color:#1a1410;margin-bottom:10px;">Upgrade to Pro</h3><p style="color:#5a4a3a;font-size:0.85rem;line-height:1.7;margin-bottom:22px;">Unlock advanced segmentation, A/B testing, and predictive analytics. Start your free 14-day trial today.</p><div style="display:flex;gap:10px;justify-content:center;"><button class="ct-btn ct-btn-primary" onclick="modalCta()">Start Free Trial</button><button class="ct-btn ct-btn-secondary" onclick="document.getElementById('pe-modal').remove();logToPanel('PE: Modal Dismissed',{})">Maybe Later</button></div></div>`;document.body.appendChild(w);clevertap.event.push('PE Modal Shown',{});logToPanel('PE: Modal Shown',{cid:'CMP_PE_MDL'});}
+    function modalCta(){clevertap.event.push('PE Modal CTA Clicked',{action:'Start Free Trial'});logToPanel('PE: Modal CTA Clicked',{});showToast('Modal CTA fired!');document.getElementById('pe-modal')?.remove();}
+
+    function getVars(){const v={theme:'warm',cta_color:'#e8622a',show_banner:true,max_items:5};logToPanel('getVariables()',v);showToast('Variables fetched');}
+    function fetchVars(){logToPanel('fetchVariables()',{status:'fetching…'});setTimeout(()=>{logToPanel('fetchVariables() → resolved',{theme:'warm',hero_title:'Flash Sale',discount_pct:30});showToast('Variables fetched from server');},800);}
+    function resetVars(){logToPanel('resetVariables()',{status:'reset to defaults'});showToast('Variables reset');}
+  </script>
+</body>
+</html>

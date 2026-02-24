@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Native Display – CleverTap Web Sample</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="ct-config.js"></script>
+
+  <style>
+    :root{--bg:#f7f5f2;--surface:#fff;--border:#e5ddd5;--accent:#e8622a;--accent2:#c44d1e;--text:#1a1410;--muted:#8a7d72;--success:#3d8f5f;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:"Syne",sans-serif;min-height:100vh;}
+    .ct-header{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border);}
+    .ct-topbar{padding:13px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0ebe4;}
+    .back-link{font-family:"DM Mono",monospace;font-size:0.76rem;color:var(--muted);text-decoration:none;transition:color 0.15s;}
+    .back-link:hover{color:var(--accent);}
+    .sdk-live{font-family:"DM Mono",monospace;font-size:0.66rem;color:var(--success);display:flex;align-items:center;gap:5px;}
+    .sdk-live::before{content:"";width:6px;height:6px;background:var(--success);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .ct-pagehead{padding:16px 48px 22px;}
+    .ph-icon{font-size:1.5rem;display:block;margin-bottom:6px;}
+    .ct-pagehead h1{font-size:1.45rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);margin-bottom:4px;}
+    .ct-pagehead p{font-family:"DM Mono",monospace;font-size:0.73rem;color:var(--muted);}
+    .page-body{max-width:1160px;margin:0 auto;padding:32px 40px;display:grid;grid-template-columns:260px 1fr;gap:20px;}
+    .ct-btn{padding:9px 18px;border-radius:8px;border:none;font-family:"Syne",sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+    .ct-btn-primary{background:var(--accent);color:#fff;}
+    .ct-btn-primary:hover{background:var(--accent2);}
+    .ct-btn-secondary{background:#f3ede6;color:#6b5c4e;border:1px solid var(--border);width:100%;text-align:left;margin-bottom:7px;}
+    .ct-btn-secondary:hover{background:#ede5db;color:var(--text);}
+    .side-panel{display:flex;flex-direction:column;gap:14px;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .card-head{padding:11px 14px;border-bottom:1px solid var(--border);background:#fdfaf7;font-size:0.82rem;font-weight:700;}
+    .card-body{padding:10px 12px;}
+    .unit-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:all 0.15s;margin-bottom:4px;border:1px solid transparent;}
+    .unit-item:hover{background:#fdf6f0;border-color:#e8d5c4;}
+    .unit-item.active{background:#fdf6f0;border-color:var(--accent);}
+    .unit-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+    .unit-name{font-size:0.83rem;font-weight:700;color:var(--text);}
+    .unit-type{font-family:"DM Mono",monospace;font-size:0.65rem;color:var(--muted);}
+    .render-area{display:flex;flex-direction:column;gap:14px;}
+    .preview-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .preview-toolbar{padding:12px 18px;border-bottom:1px solid var(--border);background:#fdfaf7;display:flex;justify-content:space-between;align-items:center;}
+    .preview-toolbar span{font-family:"DM Mono",monospace;font-size:0.73rem;color:var(--muted);}
+    .preview-toolbar .unit-id{color:var(--accent);font-weight:600;}
+    .preview-body{padding:26px;}
+    /* Banner */
+    .nd-banner{background:linear-gradient(135deg,#fdf0e6,#fff8f3);border:1px solid #e8d5c4;border-radius:12px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+    .nd-banner h3{font-size:1.3rem;font-weight:800;margin-bottom:8px;letter-spacing:-0.02em;}
+    .nd-banner p{color:#5a4a3a;font-size:0.86rem;line-height:1.5;margin-bottom:16px;}
+    .nd-banner-img{font-size:4rem;flex-shrink:0;}
+    .btn-row{display:flex;gap:10px;}
+    /* Content card */
+    .nd-content{background:#fdfaf7;border:1px solid var(--border);border-radius:12px;padding:20px;max-width:380px;}
+    .nd-content .media{width:100%;height:140px;background:linear-gradient(135deg,#fde8dc,#fdf6f0);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:14px;}
+    .nd-content h3{font-size:1rem;font-weight:700;margin-bottom:7px;}
+    .nd-content p{color:#5a4a3a;font-size:0.84rem;line-height:1.6;margin-bottom:14px;}
+    /* Product grid */
+    .nd-products{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .nd-product{background:#fdfaf7;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.15s;}
+    .nd-product:hover{border-color:var(--accent);transform:translateY(-2px);}
+    .nd-product .p-img{font-size:2rem;margin-bottom:7px;}
+    .nd-product .p-name{font-size:0.78rem;font-weight:700;margin-bottom:3px;}
+    .nd-product .p-price{font-family:"DM Mono",monospace;font-size:0.74rem;color:var(--accent);}
+    .nd-product .p-old{font-family:"DM Mono",monospace;font-size:0.66rem;color:#c0b5a8;text-decoration:line-through;}
+    /* Announcement */
+    .nd-announce{background:linear-gradient(135deg,#fde8dc,#fff8f3);border:1px solid #e8d5c4;border-radius:12px;padding:32px;text-align:center;}
+    .nd-announce .ann-icon{font-size:2.6rem;margin-bottom:12px;}
+    .nd-announce h3{font-size:1.2rem;font-weight:800;margin-bottom:9px;}
+    .nd-announce p{color:#5a4a3a;font-size:0.86rem;line-height:1.6;max-width:340px;margin:0 auto 18px;}
+    /* Stats */
+    .nd-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    .nd-stat{background:#fdfaf7;border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+    .nd-stat .sv{font-size:1.65rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:4px;}
+    .nd-stat .sl{font-family:"DM Mono",monospace;font-size:0.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+    .log-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .log-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#fdfaf7;}
+    .log-head span:first-child{font-size:0.8rem;font-weight:700;color:var(--text);}
+    .log-clear{font-family:"DM Mono",monospace;font-size:0.7rem;color:var(--muted);cursor:pointer;background:none;border:none;}
+    .log-clear:hover{color:var(--text);}
+    #log-panel{max-height:180px;overflow-y:auto;font-family:"DM Mono",monospace;}
+    #log-panel:empty::after{content:"Waiting for events...";display:block;padding:20px;color:var(--muted);font-size:0.73rem;text-align:center;}
+    @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="ct-header">
+    <div class="ct-topbar">
+      <a href="index.html" class="back-link">← Back to Sample</a>
+      <span class="sdk-live">SDK LIVE</span>
+    </div>
+    <div class="ct-pagehead">
+      <span class="ph-icon">🖼️</span>
+      <h1>Native Display</h1>
+      <p>Render personalized content units from CleverTap campaigns</p>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="side-panel">
+      <div class="card">
+        <div class="card-head">Display Units</div>
+        <div class="card-body">
+          <div class="unit-item active" id="u-banner" onclick="show('banner')"><div class="unit-icon" style="background:#fde8dc;">🏞️</div><div><div class="unit-name">Hero Banner</div><div class="unit-type">Full-width · CTA</div></div></div>
+          <div class="unit-item" id="u-content" onclick="show('content')"><div class="unit-icon" style="background:#fdf0e6;">🃏</div><div><div class="unit-name">Content Card</div><div class="unit-type">Image + Text</div></div></div>
+          <div class="unit-item" id="u-products" onclick="show('products')"><div class="unit-icon" style="background:#fef6e6;">🛒</div><div><div class="unit-name">Product Grid</div><div class="unit-type">3-column</div></div></div>
+          <div class="unit-item" id="u-announce" onclick="show('announce')"><div class="unit-icon" style="background:#f0faf4;">📣</div><div><div class="unit-name">Announcement</div><div class="unit-type">Centered</div></div></div>
+          <div class="unit-item" id="u-stats" onclick="show('stats')"><div class="unit-icon" style="background:#fdf0f0;">📊</div><div><div class="unit-name">Stats Tracker</div><div class="unit-type">4-column</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">SDK Callbacks</div>
+        <div class="card-body">
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="fire('Viewed')" style="font-size:0.77rem;padding:7px 12px;">notifyItemViewed()</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="fire('Clicked')" style="font-size:0.77rem;padding:7px 12px;">notifyItemClicked()</button>
+          <button type="button" class="ct-btn ct-btn-secondary" onclick="fire('Dismissed')" style="font-size:0.77rem;padding:7px 12px;margin-bottom:0;">notifyItemDismissed()</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="render-area">
+      <div class="preview-card">
+        <div class="preview-toolbar">
+          <span>Live Preview</span>
+          <span class="unit-id" id="unit-id">HERO_BANNER · CMP_ND_001</span>
+        </div>
+        <div class="preview-body" id="preview-body"></div>
+      </div>
+      <div class="log-card">
+        <div class="log-head"><span>Native Display Event Log</span><button class="log-clear" onclick="document.getElementById('log-panel').innerHTML=''">Clear</button></div>
+        <div id="log-panel"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.clevertap = window.clevertap||{event:[],profile:[],onUserLogin:[],notifications:[],privacy:[]};
+    function showToast(msg,type='success'){document.getElementById('ct-toast')?.remove();const t=document.createElement('div');t.id='ct-toast';t.style.cssText=`position:fixed;bottom:22px;right:22px;padding:11px 16px;border-radius:9px;font-family:"DM Mono",monospace;font-size:0.78rem;z-index:9999;display:flex;align-items:center;gap:8px;animation:slideUp 0.25s ease;box-shadow:0 4px 18px rgba(0,0,0,0.1);${type==='success'?'background:#f0faf4;border:1px solid #a8d5bb;color:#2a6040;':'background:#fef2f0;border:1px solid #f0b8a8;color:#8b2e18;'}`;t.innerHTML=`<span>${type==='success'?'✓':'✗'}</span> ${msg}`;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
+    function logToPanel(label,data){const p=document.getElementById('log-panel');if(!p)return;const e=document.createElement('div');e.style.cssText='padding:9px 14px;border-bottom:1px solid #f0ebe3;animation:fadeIn 0.25s ease;';e.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#e8622a;font-weight:600;font-size:0.74rem;">${label}</span><span style="color:#c0b5a8;font-size:0.67rem;">${new Date().toLocaleTimeString()}</span></div><pre style="color:#7a6a5a;font-size:0.7rem;white-space:pre-wrap;word-break:break-all;">${JSON.stringify(data,null,2)}</pre>`;p.insertBefore(e,p.firstChild);}
+
+    let cur='banner';
+    const meta={banner:{id:'HERO_BANNER · CMP_ND_001',cid:'CMP_ND_001'},content:{id:'CONTENT_CARD · CMP_ND_002',cid:'CMP_ND_002'},products:{id:'PRODUCT_GRID · CMP_ND_003',cid:'CMP_ND_003'},announce:{id:'ANNOUNCEMENT · CMP_ND_004',cid:'CMP_ND_004'},stats:{id:'STATS_TRACKER · CMP_ND_005',cid:'CMP_ND_005'}};
+
+    function show(type){
+      cur=type;
+      document.querySelectorAll('.unit-item').forEach(e=>e.classList.remove('active'));
+      document.getElementById('u-'+type).classList.add('active');
+      document.getElementById('unit-id').textContent=meta[type].id;
+      const b=document.getElementById('preview-body');
+      if(type==='banner'){b.innerHTML=`<div class="nd-banner"><div><h3>Flash Sale Ends Tonight! 🔥</h3><p>Up to 50% off on selected products. Limited time offer — don't miss out.</p><div class="btn-row"><button type="button" class="ct-btn ct-btn-primary" onclick="cta('banner','Shop Now')">Shop Now</button><button type="button" class="ct-btn ct-btn-secondary" onclick="dismiss('banner')" style="width:auto;">Dismiss</button></div></div><div class="nd-banner-img">🛍️</div></div>`;}
+      else if(type==='content'){b.innerHTML=`<div class="nd-content"><div class="media">🎯</div><h3>Personalized Just for You</h3><p>Based on your recent activity, we think you'd love these hand-picked recommendations.</p><button type="button" class="ct-btn ct-btn-primary" onclick="cta('content','Explore Now')">Explore Now</button></div>`;}
+      else if(type==='products'){b.innerHTML=`<div class="nd-products">${[['👟','Air Runner X','₹2,999','₹4,999'],['🎧','ProBuds Elite','₹1,799','₹2,499'],['⌚','SmartWatch S3','₹8,999','₹12,999']].map(([e,n,p,o])=>`<div class="nd-product" onclick="cta('product','${n}')"><div class="p-img">${e}</div><div class="p-name">${n}</div><div class="p-price">${p}</div><div class="p-old">${o}</div></div>`).join('')}</div><p style="font-family:'DM Mono',monospace;font-size:0.71rem;color:#8a7d72;margin-top:12px;text-align:center;">Click any product to fire a Product Clicked event</p>`;}
+      else if(type==='announce'){b.innerHTML=`<div class="nd-announce"><div class="ann-icon">🎊</div><h3>You Unlocked Gold Status!</h3><p>Enjoy free shipping, early access to sales, and exclusive member-only discounts from today.</p><div class="btn-row" style="justify-content:center;"><button type="button" class="ct-btn ct-btn-primary" onclick="cta('announce','View Benefits')">View Benefits</button><button type="button" class="ct-btn ct-btn-secondary" onclick="dismiss('announce')" style="width:auto;">Later</button></div></div>`;}
+      else if(type==='stats'){b.innerHTML=`<div class="nd-stats"><div class="nd-stat"><div class="sv" style="color:#e8622a;">142</div><div class="sl">Events Fired</div></div><div class="nd-stat"><div class="sv" style="color:#c47d1a;">8</div><div class="sl">Campaigns</div></div><div class="nd-stat"><div class="sv" style="color:#3d8f5f;">94%</div><div class="sl">Delivery</div></div><div class="nd-stat"><div class="sv" style="color:#7a6a5a;">12</div><div class="sl">Conversions</div></div></div>`;}
+      clevertap.event.push('Native Display Viewed',{type,cid:meta[type].cid});
+      logToPanel('Native Display: Rendered + Viewed',{type,cid:meta[type].cid});
+    }
+    function cta(unit,label){clevertap.event.push('Native Display CTA Clicked',{unit,label});logToPanel('Native Display: CTA Clicked',{unit,label});showToast(`CTA "${label}" clicked`);}
+    function dismiss(unit){clevertap.event.push('Native Display Dismissed',{unit});logToPanel('Native Display: Dismissed',{unit});showToast('Unit dismissed');}
+    function fire(action){clevertap.event.push(`Native Display ${action}`,{type:cur});logToPanel(`notifyItem${action}()`,{type:cur});showToast(`notify${action} fired`);}
+    show('banner');
+  </script>
+</body>
+</html>
